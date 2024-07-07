@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Souvenir Shop{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+            padding: 0;
+        }
+        .navbar-brand img {
+            width: 130px;
+            height: 130px;
+            margin-right: 35px;
+        }
+        .navbar-brand .site-title {
+            font-size: 1.5rem;
+            margin: -50px;
+        }
+        .search-form {
+            margin-left: 60px;
+            padding: 0;
+        }
+        .card-img-top {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .content {
+            flex: 1;
+        }
+        .footer {
+            background-color: #f5f5f5;
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #ddd;
+        }
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer .col-md-6 {
+            text-align: left;
+        }
+        .footer .col-md-6.text-right {
+            text-align: right;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-item:last-child {
+            margin-right: 0;
+        }
+        .navbar-nav .nav-link {
+            white-space: nowrap;
+        }
+        .cart-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cart-icon .fas {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #28a745;
+        }
+        .cart-icon a {
+            color: #28a745;
+            text-decoration: none;
+            border: 1px solid #28a745;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+        }
+        .cart-icon a:hover {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-outline-success {
+            height: 38px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <a class="navbar-brand" href="/">
+                        <img src="{% static 'images/SouvenirShopLogo.png' %}" alt="Souvenir Shop Logo">
+                        <span class="site-title">Souvenir Shop</span>
+                    </a>
+                    <form class="form-inline search-form" action="{% url 'shop:search' %}" method="get">
+                        <div class="input-group">
+                            <input class="form-control" type="search" placeholder="Поиск" aria-label="Search" name="q">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success" type="submit">Поиск</button>
+                            </div>
+                        </div>
+                    </form>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">Товары</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Категории
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    {% for category in categories %}
+                                        <a class="dropdown-item" href="{{ category.get_absolute_url }}">{{ category.title }}</a>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'shop:about' %}">О нас</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'shop:contact' %}">Контакты</a>
+                            </li>
+                            {% if user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    {{ user.username }}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <a class="dropdown-item" href="{% url 'shop:profile' %}">Мой профиль</a>
+                                    <a class="dropdown-item" href="{% url 'shop:orders' %}">Мои заказы</a>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-success btn-block">Выйти</button>
+                                </form>
+                            </li>
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'shop:register' %}">Регистрация</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-success btn-block" href="{% url 'login' %}">Вход</a>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item cart-icon">
+                                <a class="nav-link" href="{% url 'shop:view_cart' %}">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Корзина
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="content">
+            <div class="container">
+                <main role="main" class="pb-3">
+                    {% block content %}{% endblock %}
+                </main>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Адрес и режим работы магазина</p>
+                        <p>г. Москва ул. Паленраня 14 к 2</p>
+                        <p>Ежедневно 10:00 - 22:00</p>
+                        <p>Телефон: 8-916-839-00-01</p>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <p><a href="{% url 'shop:about' %}">О нас</a></p>
+                        <p><a href="{% url 'shop:contact' %}">Контакты</a></p>
+                        <p><a href="{% url 'shop:register' %}">Регистрация</a></p>
+                        <p><a href="{% url 'login' %}">Вход</a></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <p>&copy; 2024 - Souvenir Shop</p>
+                        <p>by Kuznetsov A.A</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
